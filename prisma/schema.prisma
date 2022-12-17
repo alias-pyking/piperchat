@@ -23,11 +23,11 @@ model Server {
     id        BigInt           @id @default(autoincrement())
     name      String           @unique @db.VarChar(128)
     about     String?          @db.VarChar(512)
-    avatar    String           @db.VarChar(256)
+    avatar    String?           @db.VarChar(256)
     isPrivate Boolean          @default(true) @map("is_private")
     channels  Channel[]
     createdAt DateTime         @default(now()) @map("created_at")
-    updateAt  DateTime         @default(now()) @map("updated_at")
+    updatedAt  DateTime         @default(now()) @map("updated_at")
     users     UsersOnServers[]
     files     File[]
 
@@ -70,7 +70,7 @@ model User {
     username  String           @unique @db.VarChar(120)
     password  String
     about     String?          @db.Text()
-    avatar    String?           @db.VarChar(256)
+    avatar    String?          @db.VarChar(256)
     status    String?          @db.VarChar(120)
     online    Boolean          @default(false)
     createdAt DateTime         @default(now()) @map("created_at")
@@ -83,14 +83,20 @@ model User {
 }
 
 model UsersOnServers {
-    server   Server   @relation(references: [id], fields: [serverId], onDelete: Cascade)
-    serverId BigInt   @map("server_id")
-    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId   BigInt   @map("user_id")
-    joinedAt DateTime @default(now()) @map("joined_at")
+    server   Server    @relation(references: [id], fields: [serverId], onDelete: Cascade)
+    serverId BigInt    @map("server_id")
+    user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId   BigInt    @map("user_id")
+    role     UserRoles @default(member)
+    joinedAt DateTime  @default(now()) @map("joined_at")
 
     @@id([serverId, userId])
     @@map("usersonserver")
+}
+
+enum UserRoles {
+    admin
+    member
 }
 
 generator client {

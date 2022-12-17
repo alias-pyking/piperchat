@@ -4,13 +4,14 @@ import Fastify from 'fastify';
 import { customErrorHandler } from './common/utils.js';
 import { port } from './config.js';
 
+import chatRoutes from './chat-servers/routes.js';
 import userRoutes from './users/routes.js';
 
-const server = Fastify({
+const fastify = Fastify({
   logger: true,
 });
 
-server.addHook('onSend', async (request, reply, payload) => {
+fastify.addHook('onSend', async (request, reply, payload) => {
   if (reply.statusCode >= 200 && reply.statusCode <= 299) {
     payload = `{
       "ok": true,
@@ -21,14 +22,15 @@ server.addHook('onSend', async (request, reply, payload) => {
   return payload;
 });
 
-server.register(userRoutes, { prefix: '/users' });
-server.setErrorHandler(customErrorHandler);
+fastify.register(userRoutes, { prefix: '/users' });
+fastify.register(chatRoutes, { prefix: '/' });
+fastify.setErrorHandler(customErrorHandler);
 
 async function startServer() {
   try {
-    server.listen({ port });
+    fastify.listen({ port });
   } catch (err) {
-    server.log.error('Cannot start server: ', err);
+    fastify.log.error('Cannot start server: ', err);
   }
 }
 
