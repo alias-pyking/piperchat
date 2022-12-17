@@ -1,6 +1,5 @@
 import { errorCodes, errorTypes } from './constants.js';
 
-
 export class BaseError extends Error {
   constructor(type, message, statusCode, code = null) {
     super(message);
@@ -16,16 +15,16 @@ export class BaseError extends Error {
       error: {
         message: this.message,
         code: this.code,
-        type: this.type
-      }
+        type: this.type,
+      },
     };
     if (!result.error.code) {
       delete result.error.code;
     }
+
     return result;
   }
 }
-
 
 export class ApiError extends BaseError {
   constructor(message = 'Something went wrong on piperchat server end') {
@@ -33,15 +32,18 @@ export class ApiError extends BaseError {
   }
 }
 
-
 export class InvalidRequestError extends BaseError {
-  constructor(message = 'Parameter is invalid or missing in request', statusCode = 400,
-    code = errorCodes.parameterMissingOrInvalid) {
-    this.code = code;
+  constructor(message, statusCode, code) {
     super(errorTypes.invalidRequestError, message, statusCode, code);
+    this.code = code;
   }
 }
 
+export class ParameterMissingOrInvalid extends InvalidRequestError {
+  constructor(message = 'One or more required fields are missing or invalid') {
+    super(message, 400, errorCodes.parameterMissingOrInvalid);
+  }
+}
 
 export class PermissionDenied extends InvalidRequestError {
   constructor(message = 'You do not have enough permissions to perform this operation') {

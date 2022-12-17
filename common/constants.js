@@ -1,18 +1,18 @@
 
 export const errorCodes = {
-  permissionDenied: 'permissionDenied',
-  accessTokenExpired: 'accessTokenExpired',
-  resourceMissing: 'resourceMissing',
-  refreshTokenExpired: 'refreshTokenExpired',
-  accessTokenMalformed: 'accessTokenMalformed',
-  parameterMissingOrInvalid: 'parameterMissingOrInvalid',
-  routeNotFound: 'routeNotFound',
-  methodNotAllowed: 'methodNotAllowed',
-  unAuthenticated: 'unAuthenticated',
+  permissionDenied: 'PermissionDenied',
+  accessTokenExpired: 'AccessTokenExpired',
+  resourceMissing: 'ResourceMissing',
+  refreshTokenExpired: 'RefreshTokenExpired',
+  accessTokenMalformed: 'AccessTokenMalformed',
+  parameterMissingOrInvalid: 'ParameterMissingOrInvalid',
+  routeNotFound: 'RouteNotFound',
+  methodNotAllowed: 'MethodNotAllowed',
+  unAuthenticated: 'UnAuthenticated',
+  resourceAlreadyExists: 'ResourceAlreadyExists',
 };
-
 
 export const errorTypes = {
   invalidRequestError: 'InvalidRequestError',
-  apiError: 'ApiError'
+  apiError: 'ApiError',
 };

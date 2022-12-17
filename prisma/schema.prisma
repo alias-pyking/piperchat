@@ -1,0 +1,98 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model File {
+    id        BigInt   @id @default(autoincrement())
+    user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId    BigInt?  @map("user_id")
+    channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+    channelId BigInt   @map("channel_id")
+    server    Server?  @relation(fields: [serverId], references: [id], onDelete: Cascade)
+    serverId  BigInt?  @map("server_id")
+    name      String   @db.VarChar(128)
+    filetype  String   @db.VarChar(8)
+    mimetype  String   @db.VarChar(32)
+    url       String   @db.VarChar(256)
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @map("updated_at")
+}
+
+model Server {
+    id        BigInt           @id @default(autoincrement())
+    name      String           @unique @db.VarChar(128)
+    about     String?          @db.VarChar(512)
+    avatar    String           @db.VarChar(256)
+    isPrivate Boolean          @default(true) @map("is_private")
+    channels  Channel[]
+    createdAt DateTime         @default(now()) @map("created_at")
+    updateAt  DateTime         @default(now()) @map("updated_at")
+    users     UsersOnServers[]
+    files     File[]
+
+    @@map("servers")
+}
+
+model Channel {
+    id         BigInt    @id @default(autoincrement())
+    name       String    @db.VarChar(128)
+    about      String?   @db.VarChar(512)
+    server     Server    @relation(fields: [serverId], references: [id], onDelete: Cascade)
+    serverId   BigInt    @map("server_id")
+    isPrivate  Boolean   @default(false) @map("is_private")
+    isArchived Boolean   @default(false) @map("is_archived")
+    messages   Message[]
+    createdAt  DateTime  @default(now()) @map("created_at")
+    updatedAt  DateTime  @default(now()) @map("updated_at")
+    File       File[]
+
+    @@map("channels")
+}
+
+model Message {
+    id        BigInt   @id @default(autoincrement())
+    sender    User?    @relation(references: [id], fields: [senderId], onDelete: SetNull)
+    senderId  BigInt?  @map("sender_id")
+    channel   Channel? @relation(fields: [channelId], references: [id], onDelete: Cascade)
+    channelId BigInt?  @map("channel_id")
+    content   String   @db.Text()
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @default(now()) @map("updated_at")
+
+    @@map("messages")
+}
+
+model User {
+    id        BigInt           @id @default(autoincrement())
+    name      String           @db.VarChar(120)
+    email     String           @unique @db.VarChar(120)
+    username  String           @unique @db.VarChar(120)
+    password  String
+    about     String?          @db.Text()
+    avatar    String?           @db.VarChar(256)
+    status    String?          @db.VarChar(120)
+    online    Boolean          @default(false)
+    createdAt DateTime         @default(now()) @map("created_at")
+    updatedAt DateTime         @default(now()) @map("updated_at")
+    messages  Message[]
+    files     File[]
+    servers   UsersOnServers[]
+
+    @@map("users")
+}
+
+model UsersOnServers {
+    server   Server   @relation(references: [id], fields: [serverId], onDelete: Cascade)
+    serverId BigInt   @map("server_id")
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId   BigInt   @map("user_id")
+    joinedAt DateTime @default(now()) @map("joined_at")
+
+    @@id([serverId, userId])
+    @@map("usersonserver")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}

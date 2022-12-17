@@ -1,40 +1,35 @@
+'use-strict';
+
 import Fastify from 'fastify';
 import { customErrorHandler } from './common/utils.js';
 import { port } from './config.js';
 
+import userRoutes from './users/routes.js';
 
 const server = Fastify({
-  logger: true
+  logger: true,
 });
 
-
-server.post('/test', {
-  schema: {
-    body: {
-      type: 'object',
-      required: ['name', 'age'],
-      properties: {
-        name: { type: 'string' },
-        age: { type: 'number' },
-        designation: { type: 'string' }
-      }
-
-    }
+server.addHook('onSend', async (request, reply, payload) => {
+  if (reply.statusCode >= 200 && reply.statusCode <= 299) {
+    payload = `{
+      "ok": true,
+      "data": ${payload}
+    }`;
   }
-}, (request, reply) => {
-  console.log(a);
-  reply.send({ ok: true });
+
+  return payload;
 });
 
+server.register(userRoutes, { prefix: '/users' });
 server.setErrorHandler(customErrorHandler);
 
 async function startServer() {
   try {
-    server.listen({ port, });
+    server.listen({ port });
   } catch (err) {
     server.log.error('Cannot start server: ', err);
   }
 }
-
 
 startServer();
